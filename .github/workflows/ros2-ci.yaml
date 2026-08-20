@@ -2,6 +2,9 @@ name: ROS2 CI
 
 on:
   push:
+    branches:
+      - main
+      - dev
     paths:
       - 'ROS2/**'
   workflow_dispatch:
