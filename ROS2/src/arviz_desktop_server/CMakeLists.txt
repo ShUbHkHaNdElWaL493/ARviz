@@ -31,7 +31,19 @@ if(BUILD_TESTING)
   # comment the line when this package is in a git repo and when
   # a copyright and license is added to all source files
   set(ament_cmake_cpplint_FOUND TRUE)
+  list(APPEND AMENT_LINT_AUTO_EXCLUDE
+    ament_cmake_uncrustify
+  )
   ament_lint_auto_find_test_dependencies()
+  find_package(ament_cmake_uncrustify REQUIRED)
+  file(GLOB_RECURSE UNCRUSTIFY_FILES
+    "src/*.c" "src/*.cpp" "src/*.h" "src/*.hpp"
+    "include/*.c" "include/*.cpp" "include/*.h" "include/*.hpp"
+  )
+  list(REMOVE_ITEM UNCRUSTIFY_FILES "${CMAKE_CURRENT_SOURCE_DIR}/include/arviz_desktop_server/httplib.h")
+  if(UNCRUSTIFY_FILES)
+    ament_uncrustify(${UNCRUSTIFY_FILES})
+  endif()
 endif()
 
 ament_package()
