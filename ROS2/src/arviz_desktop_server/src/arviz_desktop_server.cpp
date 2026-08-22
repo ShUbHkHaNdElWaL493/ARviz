@@ -132,11 +132,11 @@ public:
   {
     int port = 8000;
     std::string local_ip = get_local_ip();
-    RCLCPP_INFO(this->get_logger(), "==========================================");
+    RCLCPP_INFO(this->get_logger(), "=============================");
     RCLCPP_INFO(this->get_logger(), " Starting ARviz HTTP Server");
     RCLCPP_INFO(this->get_logger(), " IP Address: %s", local_ip.c_str());
     RCLCPP_INFO(this->get_logger(), " Port: %d", port);
-    RCLCPP_INFO(this->get_logger(), "==========================================");
+    RCLCPP_INFO(this->get_logger(), "=============================");
     server.Get(R"(/assets/([^/]+)/(.*))",
       [&](const httplib::Request & req, httplib::Response & res) {
         handle_request(req, res);

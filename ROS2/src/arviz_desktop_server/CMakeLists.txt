@@ -17,6 +17,11 @@ add_executable(arviz_desktop_server src/arviz_desktop_server.cpp)
 ament_target_dependencies(arviz_desktop_server rclcpp ament_index_cpp)
 target_link_libraries(arviz_desktop_server assimp pthread)
 
+install(
+  DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME}
+)
+
 install(TARGETS
   arviz_desktop_server
   DESTINATION lib/${PROJECT_NAME}
