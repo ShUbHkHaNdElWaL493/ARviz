@@ -1,9 +1,30 @@
 #include <ament_index_cpp/get_package_share_directory.hpp>
+#include <arpa/inet.h>
 #include "arviz_desktop_server/httplib.h"
 #include <assimp/Exporter.hpp>
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <rclcpp/rclcpp.hpp>
+
+std::string get_local_ip()
+{
+  std::string ip = "127.0.0.1 (Localhost)";
+  struct ifaddrs *interfaces = nullptr;
+  if (getifaddrs(&interfaces) == 0) {
+    for (struct ifaddrs *ifa = interfaces; ifa != nullptr; ifa = ifa->ifa_next) {
+      if (ifa->ifa_addr != nullptr && ifa->ifa_addr->sa_family == AF_INET) {
+        std::string current_ip = inet_ntoa(((struct sockaddr_in *)ifa->ifa_addr)->sin_addr);
+        std::string name = ifa->ifa_name;
+        if (current_ip != "127.0.0.1" && name.find("docker") == std::string::npos) {
+          ip = current_ip;
+          break;
+        }
+      }
+    }
+    freeifaddrs(interfaces);
+  }
+  return ip;
+}
 
 class ARvizDesktopServer : public rclcpp::Node
 {
@@ -110,7 +131,12 @@ public:
     allowed_extensions({".dae", ".stl", ".obj", ".glb", ".gltf", ".png", ".jpg", ".jpeg"})
   {
     int port = 8000;
-    RCLCPP_INFO(this->get_logger(), "Starting ARviz HTTP Server on port %d...", port);
+    std::string local_ip = get_local_ip();
+    RCLCPP_INFO(this->get_logger(), "==========================================");
+    RCLCPP_INFO(this->get_logger(), " Starting ARviz HTTP Server");
+    RCLCPP_INFO(this->get_logger(), " IP Address: %s", local_ip.c_str());
+    RCLCPP_INFO(this->get_logger(), " Port: %d", port);
+    RCLCPP_INFO(this->get_logger(), "==========================================");
     server.Get(R"(/assets/([^/]+)/(.*))",
       [&](const httplib::Request & req, httplib::Response & res) {
         handle_request(req, res);
