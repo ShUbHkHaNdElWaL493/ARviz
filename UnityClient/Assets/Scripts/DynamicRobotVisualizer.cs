@@ -12,7 +12,7 @@ using UnityEngine;
 public class DynamicRobotVisualizer : MonoBehaviour
 {
     [Header("Network Settings")]
-    public string urdf_topic = "/robot_description";
+    public string robot_description_topic = "/robot_description";
     public string joint_states_topic = "/joint_states";
 
     private bool urdf_loaded = false;
@@ -21,7 +21,7 @@ public class DynamicRobotVisualizer : MonoBehaviour
     private Dictionary<string, Transform> joint_nodes = new Dictionary<string, Transform>();
     private Dictionary<string, Quaternion> initial_rotations = new Dictionary<string, Quaternion>();
 
-    public void SetTopic(string topic) => urdf_topic = topic;
+    public void SetTopic(string topic) => robot_description_topic = topic;
 
     public void BeginVisualization()
     {
@@ -33,10 +33,10 @@ public class DynamicRobotVisualizer : MonoBehaviour
 
         string current_ip = ROSConnection.GetOrCreateInstance().RosIPAddress;
 
-        ROSConnection.GetOrCreateInstance().Subscribe<StringMsg>(urdf_topic, URDFCallback);
+        ROSConnection.GetOrCreateInstance().Subscribe<StringMsg>(robot_description_topic, URDFCallback);
         ROSConnection.GetOrCreateInstance().Subscribe<JointStateMsg>(joint_states_topic, JointStatesCallback);
 
-        Debug.Log($"Waiting for URDF on {urdf_topic} at {current_ip}...");
+        Debug.Log($"Waiting for URDF on {robot_description_topic} at {current_ip}...");
     }
 
     async void URDFCallback(StringMsg msg)
