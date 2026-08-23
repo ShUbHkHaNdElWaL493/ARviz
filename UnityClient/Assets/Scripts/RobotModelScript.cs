@@ -1,6 +1,6 @@
 using GLTFast;
-using RosMessageTypes.Std;
 using RosMessageTypes.Sensor;
+using RosMessageTypes.Std;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -9,7 +9,7 @@ using Unity.Robotics.ROSTCPConnector;
 using Unity.Robotics.UrdfImporter;
 using UnityEngine;
 
-public class DynamicRobotVisualizer : MonoBehaviour
+public class RobotModelScript : MonoBehaviour
 {
     [Header("Network Settings")]
     public string robot_description_topic = "/robot_description";
