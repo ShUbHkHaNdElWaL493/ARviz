@@ -12,37 +12,37 @@ using UnityEngine;
 public class RobotModelScript : MonoBehaviour
 {
     [Header("Network Settings")]
-    public string robot_description_topic = "/robot_description";
-    public string joint_states_topic = "/joint_states";
+    public string robotDescriptionTopic = "/robot_description";
+    public string jointStatesTopic = "/joint_states";
 
-    private bool urdf_loaded = false;
-    private string dummy_stl_path;
+    private bool URDFLoaded = false;
+    private string dummySTLPath;
 
     private Dictionary<string, Transform> joint_nodes = new Dictionary<string, Transform>();
     private Dictionary<string, Quaternion> initial_rotations = new Dictionary<string, Quaternion>();
 
-    public void SetTopic(string topic) => robot_description_topic = topic;
+    public void SetTopic(string topic) => robotDescriptionTopic = topic;
 
     public void BeginVisualization()
     {
-        if (urdf_loaded) return;
+        if (URDFLoaded) return;
 
-        dummy_stl_path = Path.Combine(Application.persistentDataPath, "dummy.stl");
+        dummySTLPath = Path.Combine(Application.persistentDataPath, "dummy.stl");
         string dummyStl = "solid dummy\nfacet normal 0 0 1\nouter loop\nvertex 0 0 0\nvertex 1 0 0\nvertex 0 1 0\nendloop\nendfacet\nendsolid dummy";
-        File.WriteAllText(dummy_stl_path, dummyStl);
+        File.WriteAllText(dummySTLPath, dummyStl);
 
         string current_ip = ROSConnection.GetOrCreateInstance().RosIPAddress;
 
-        ROSConnection.GetOrCreateInstance().Subscribe<StringMsg>(robot_description_topic, URDFCallback);
-        ROSConnection.GetOrCreateInstance().Subscribe<JointStateMsg>(joint_states_topic, JointStatesCallback);
+        ROSConnection.GetOrCreateInstance().Subscribe<StringMsg>(robotDescriptionTopic, URDFCallback);
+        ROSConnection.GetOrCreateInstance().Subscribe<JointStateMsg>(jointStatesTopic, JointStatesCallback);
 
-        Debug.Log($"Waiting for URDF on {robot_description_topic} at {current_ip}...");
+        Debug.Log($"Waiting for URDF on {robotDescriptionTopic} at {current_ip}...");
     }
 
     async void URDFCallback(StringMsg msg)
     {
-        if (urdf_loaded) return;
-        urdf_loaded = true;
+        if (URDFLoaded) return;
+        URDFLoaded = true;
 
         Debug.Log("URDF received! Parsing as a pure visual hierarchy...");
 
@@ -73,7 +73,7 @@ public class RobotModelScript : MonoBehaviour
                         if (!string.IsNullOrEmpty(http_url))
                         {
                             visual.SetAttributeValue("name", "GLTF_URL|" + http_url);
-                            mesh.SetAttributeValue("filename", "file://" + dummy_stl_path);
+                            mesh.SetAttributeValue("filename", "file://" + dummySTLPath);
                         }
                     }
                 }
