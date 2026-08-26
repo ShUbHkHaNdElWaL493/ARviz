@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class DrawerButtonsScript : MonoBehaviour
+public class DrawerButtons : MonoBehaviour
 {
     [Header("Drawers")]
     public RectTransform leftDrawer;
