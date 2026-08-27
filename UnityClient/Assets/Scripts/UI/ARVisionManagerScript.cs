@@ -1,15 +1,31 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Runtime.InteropServices;
 
 [RequireComponent(typeof(RawImage))]
 public class ARVisionManager : MonoBehaviour
 {
+    [DllImport("aruco_tracker")]
+    private static extern void InitTracker(float fx, float fy, float cx, float cy);
+
+    [DllImport("aruco_tracker")]
+    private static extern bool ProcessFrame(System.IntPtr imageData, int width, int height, float markerLengthMeters, 
+                                            float[] outTvec, float[] outRvec);
+
     [Header("UI Elements")]
     public Toggle ARToggle;
-
     private RawImage rawImage;
     private WebCamTexture webCamTexture;
     private AspectRatioFitter ratioFitter;
+
+    [Header("Tracking Settings")]
+    public Transform robotAnchor;
+    public float markerSize = 0.1f;
+
+    private bool trackerInitialized = false;
+    private Color32[] pixelBuffer;
+    private float[] tvec = new float[3];
+    private float[] rvec = new float[3];
 
     void Start()
     {
@@ -57,10 +73,53 @@ public class ARVisionManager : MonoBehaviour
 
     void Update()
     {
-        if (webCamTexture != null && webCamTexture.isPlaying && webCamTexture.width > 100)
+        if (webCamTexture == null || !webCamTexture.isPlaying || webCamTexture.width < 100) return;
+
+        int width = webCamTexture.width;
+        int height = webCamTexture.height;
+
+        float ratio = (float)width / (float)height;
+        ratioFitter.aspectRatio = ratio;
+
+        if (ARToggle != null && ARToggle.isOn)
         {
-            float ratio = (float)webCamTexture.width / (float)webCamTexture.height;
-            ratioFitter.aspectRatio = ratio;
+            ProcessTracking(width, height);
+        }
+    }
+
+    private void ProcessTracking(int width, int height)
+    {
+        if (!trackerInitialized)
+        {
+            float fx = width; 
+            float fy = width;
+            float cx = width / 2f;
+            float cy = height / 2f;
+            InitTracker(fx, fy, cx, cy);
+            trackerInitialized = true;
+        }
+
+        if (pixelBuffer == null || pixelBuffer.Length != width * height)
+            pixelBuffer = new Color32[width * height];
+
+        webCamTexture.GetPixels32(pixelBuffer);
+        GCHandle pinHandle = GCHandle.Alloc(pixelBuffer, GCHandleType.Pinned);
+        System.IntPtr pixelPtr = pinHandle.AddrOfPinnedObject();
+
+        bool found = ProcessFrame(pixelPtr, width, height, markerSize, tvec, rvec);
+        pinHandle.Free();
+
+        if (found && robotAnchor != null)
+        {
+            Vector3 position = new Vector3(tvec[0], -tvec[1], tvec[2]);
+            robotAnchor.localPosition = position;
+
+            float angleRad = Mathf.Sqrt(rvec[0]*rvec[0] + rvec[1]*rvec[1] + rvec[2]*rvec[2]);
+            if (angleRad > 0.001f)
+            {
+                Vector3 axis = new Vector3(-rvec[0]/angleRad, rvec[1]/angleRad, -rvec[2]/angleRad);
+                robotAnchor.localRotation = Quaternion.AngleAxis(angleRad * Mathf.Rad2Deg, axis);
+            }
         }
     }
 
