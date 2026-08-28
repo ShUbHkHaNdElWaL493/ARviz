@@ -1,9 +1,9 @@
-#include <opencv2/opencv.hpp>
-#include <opencv2/calib3d.hpp>
-#include <vector>
+#include "aruco_tracker.hpp"
+#include <opencv2/imgproc.hpp>
 
 #if defined(__ANDROID__)
     #include <android/log.h>
+    #include <opencv2/calib3d.hpp>
     #include <opencv2/objdetect.hpp>
     #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, "NativeCV", __VA_ARGS__)
     #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, "NativeCV", __VA_ARGS__)
@@ -14,21 +14,18 @@
     #define LOGE(...) printf(__VA_ARGS__); printf("\n")
 #endif
 
-#if defined(_MSC_VER)
-    #define EXPORT __declspec(dllexport)
-#else
-    #define EXPORT
-#endif
+namespace
+{
+    cv::Mat cameraMatrix;
+    cv::Mat distCoeffs;
 
-cv::Mat cameraMatrix;
-cv::Mat distCoeffs;
-
-#if defined(__ANDROID__)
-    cv::Ptr<cv::aruco::ArucoDetector> arucoDetector;
-#else
-    cv::Ptr<cv::aruco::Dictionary> dictionary;
-    cv::Ptr<cv::aruco::DetectorParameters> detectorParams;
-#endif
+    #if defined(__ANDROID__)
+        cv::Ptr<cv::aruco::ArucoDetector> arucoDetector;
+    #else
+        cv::Ptr<cv::aruco::Dictionary> dictionary;
+        cv::Ptr<cv::aruco::DetectorParameters> detectorParams;
+    #endif
+}
 
 extern "C"
 {
