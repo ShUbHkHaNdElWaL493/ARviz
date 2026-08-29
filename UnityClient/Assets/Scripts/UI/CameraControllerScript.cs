@@ -25,7 +25,9 @@ public class CameraControllerScript : MonoBehaviour
 
     private float xAngle = 35f;
     private float yAngle = 0f;
-    private float distance = 7f;
+    private float distance = 1f;
+    private float minDistance = 0.5f;
+    private float maxDistance = 5f;
 
     void Start()
     {
@@ -98,7 +100,7 @@ public class CameraControllerScript : MonoBehaviour
         if (Mathf.Abs(scroll) > 0.01f)
         {
             distance -= scroll * mouseZoomSpeed * distance;
-            distance = Mathf.Clamp(distance, 1f, 50f);
+            distance = Mathf.Clamp(distance, minDistance, maxDistance);
         }
 
         Vector2 mouseDelta = Mouse.current.delta.ReadValue();
@@ -155,7 +157,7 @@ public class CameraControllerScript : MonoBehaviour
             float pinchDelta = prevDistance - curDistance;
 
             distance += pinchDelta * touchZoomSpeed * distance;
-            distance = Mathf.Clamp(distance, 1f, 50f);
+            distance = Mathf.Clamp(distance, minDistance, maxDistance);
 
             Vector2 avgDelta = (t0Delta + t1Delta) / 2f;
             Vector3 right = transform.right; right.y = 0; right.Normalize();

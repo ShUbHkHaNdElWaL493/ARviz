@@ -650,8 +650,8 @@ Transform:
   m_GameObject: {fileID: 326815365}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 1, w: 0}
-  m_LocalPosition: {x: 0.000030517578, y: -0.00005, z: 0.00048828125}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.1, y: 1, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 765475376}
@@ -1072,7 +1072,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ARVisionManager
   ARToggle: {fileID: 533649621}
   robotAnchor: {fileID: 1398045374}
-  markerSize: 0.1
+  markerSize: 0.05
 --- !u!1 &405080926
 GameObject:
   m_ObjectHideFlags: 0
@@ -5000,8 +5000,8 @@ Transform:
   m_GameObject: {fileID: 1705285323}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.000030517578, y: -0.00005, z: 0.00048828125}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.1, y: 1, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 765475376}

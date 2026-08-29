@@ -21,7 +21,7 @@ public class ARManager : MonoBehaviour
 
     [Header("Tracking Settings")]
     public Transform robotAnchor;
-    public float markerSize = 0.1f;
+    public float markerSize;
 
     private Vector3 basePosition;
     private Quaternion baseRotation;
@@ -70,6 +70,19 @@ public class ARManager : MonoBehaviour
         }
     }
 
+    private void SetChildrenActive(bool isActive)
+    {
+        if (robotAnchor == null) return;
+
+        foreach (Transform child in robotAnchor)
+        {
+            if (child.gameObject.activeSelf != isActive)
+            {
+                child.gameObject.SetActive(isActive);
+            }
+        }
+    }
+
     private void ToggleCameraFeed(bool isVisible)
     {
         if (webCamTexture == null) return;
@@ -87,6 +100,7 @@ public class ARManager : MonoBehaviour
             {
                 robotAnchor.localPosition = basePosition;
                 robotAnchor.localRotation = baseRotation;
+                SetChildrenActive(true); 
             }
         }
     }
@@ -129,17 +143,28 @@ public class ARManager : MonoBehaviour
         bool found = ProcessFrame(pixelPtr, width, height, markerSize, tvec, rvec);
         pinHandle.Free();
 
-        if (found && robotAnchor != null)
+        if (found)
         {
-            Vector3 position = new Vector3(tvec[0], -tvec[1], tvec[2]);
-            robotAnchor.localPosition = position;
+            SetChildrenActive(true);
 
-            float angleRad = Mathf.Sqrt(rvec[0]*rvec[0] + rvec[1]*rvec[1] + rvec[2]*rvec[2]);
-            if (angleRad > 0.001f)
+            if (robotAnchor != null)
             {
-                Vector3 axis = new Vector3(-rvec[0]/angleRad, rvec[1]/angleRad, -rvec[2]/angleRad);
-                robotAnchor.localRotation = Quaternion.AngleAxis(angleRad * Mathf.Rad2Deg, axis);
+                Vector3 position = new Vector3(tvec[0], -tvec[1], tvec[2]);
+                position.z = Mathf.Clamp(position.z, 0.01f, 90f);
+                robotAnchor.localPosition = position;
+
+                float angleRad = Mathf.Sqrt(rvec[0]*rvec[0] + rvec[1]*rvec[1] + rvec[2]*rvec[2]);
+                if (angleRad > 0.001f)
+                {
+                    Vector3 axis = new Vector3(-rvec[0]/angleRad, rvec[1]/angleRad, -rvec[2]/angleRad);
+                    Quaternion cvRotation = Quaternion.AngleAxis(angleRad * Mathf.Rad2Deg, axis);
+                    robotAnchor.localRotation = cvRotation * Quaternion.Euler(90, 0, 0);
+                }
             }
+        }
+        else
+        {
+            SetChildrenActive(false);
         }
     }
 
