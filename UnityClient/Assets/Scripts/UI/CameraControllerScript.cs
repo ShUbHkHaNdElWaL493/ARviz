@@ -18,6 +18,9 @@ public class CameraControllerScript : MonoBehaviour
     public float touchPanSpeed = 0.05f;
     public float touchZoomSpeed = 0.1f;
 
+    private Vector3 baseCameraPosition;
+    private Quaternion baseCameraRotation;
+    private float lastScrollValue;
     private float xAngle = 35f;
     private float yAngle = 0f;
     private float distance = 7f;
@@ -27,6 +30,18 @@ public class CameraControllerScript : MonoBehaviour
         Vector3 angles = transform.eulerAngles;
         if (angles.x != 0) xAngle = angles.x;
         if (angles.y != 0) yAngle = angles.y;
+        baseCameraRotation = Quaternion.Euler(xAngle, yAngle, 0);
+        baseCameraPosition = target.position - (baseCameraRotation * Vector3.forward * distance);
+        if (ARToggle != null)
+        {
+            ARToggle.onValueChanged.AddListener(ResetCamera);
+        }
+    }
+
+    private void ResetCamera(bool isARActive)
+    {
+        transform.position = baseCameraPosition;
+        transform.rotation = baseCameraRotation;
     }
 
     void LateUpdate()

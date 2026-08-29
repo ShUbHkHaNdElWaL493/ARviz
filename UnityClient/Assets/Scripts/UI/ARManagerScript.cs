@@ -1,9 +1,10 @@
-using UnityEngine;
-using UnityEngine.UI;
 using System.Runtime.InteropServices;
+using UnityEngine;
+using UnityEngine.Android;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(RawImage))]
-public class ARVisionManager : MonoBehaviour
+public class ARManager : MonoBehaviour
 {
     [DllImport("aruco_tracker")]
     private static extern void InitTracker(float fx, float fy, float cx, float cy);
@@ -22,6 +23,9 @@ public class ARVisionManager : MonoBehaviour
     public Transform robotAnchor;
     public float markerSize = 0.1f;
 
+    private Vector3 basePosition;
+    private Quaternion baseRotation;
+
     private bool trackerInitialized = false;
     private Color32[] pixelBuffer;
     private float[] tvec = new float[3];
@@ -29,6 +33,17 @@ public class ARVisionManager : MonoBehaviour
 
     void Start()
     {
+        if (!Permission.HasUserAuthorizedPermission(Permission.Camera))
+        {
+            Permission.RequestUserPermission(Permission.Camera);
+        }
+
+        if (robotAnchor != null)
+        {
+            basePosition = robotAnchor.localPosition;
+            baseRotation = robotAnchor.localRotation;
+        }
+
         rawImage = GetComponent<RawImage>();
 
         WebCamDevice[] devices = WebCamTexture.devices;
@@ -67,7 +82,12 @@ public class ARVisionManager : MonoBehaviour
         }
         else
         {
-            webCamTexture.Stop(); 
+            webCamTexture.Stop();
+            if (robotAnchor != null)
+            {
+                robotAnchor.localPosition = basePosition;
+                robotAnchor.localRotation = baseRotation;
+            }
         }
     }
 
