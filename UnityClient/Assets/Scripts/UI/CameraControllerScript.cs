@@ -18,9 +18,11 @@ public class CameraControllerScript : MonoBehaviour
     public float touchPanSpeed = 0.05f;
     public float touchZoomSpeed = 0.1f;
 
-    private Vector3 baseCameraPosition;
-    private Quaternion baseCameraRotation;
-    private float lastScrollValue;
+    private float startXAngle;
+    private float startYAngle;
+    private float startDistance;
+    private Vector3 startTargetPosition;
+
     private float xAngle = 35f;
     private float yAngle = 0f;
     private float distance = 7f;
@@ -30,18 +32,45 @@ public class CameraControllerScript : MonoBehaviour
         Vector3 angles = transform.eulerAngles;
         if (angles.x != 0) xAngle = angles.x;
         if (angles.y != 0) yAngle = angles.y;
-        baseCameraRotation = Quaternion.Euler(xAngle, yAngle, 0);
-        baseCameraPosition = target.position - (baseCameraRotation * Vector3.forward * distance);
+
+        startXAngle = xAngle;
+        startYAngle = yAngle;
+        startDistance = distance;
+        
+        if (target != null)
+        {
+            startTargetPosition = target.position;
+        }
+
         if (ARToggle != null)
         {
             ARToggle.onValueChanged.AddListener(ResetCamera);
+            ResetCamera(ARToggle.isOn); 
         }
     }
 
     private void ResetCamera(bool isARActive)
     {
-        transform.position = baseCameraPosition;
-        transform.rotation = baseCameraRotation;
+        if (isARActive)
+        {
+            transform.position = Vector3.zero;
+            transform.rotation = Quaternion.identity;
+        }
+        else
+        {
+            xAngle = startXAngle;
+            yAngle = startYAngle;
+            distance = startDistance;
+
+            if (target != null)
+            {
+                target.position = startTargetPosition;
+            }
+
+            Quaternion rotation = Quaternion.Euler(xAngle, yAngle, 0);
+            transform.position = target.position - (rotation * Vector3.forward * distance);
+            transform.rotation = rotation;
+        }
     }
 
     void LateUpdate()
@@ -132,6 +161,14 @@ public class CameraControllerScript : MonoBehaviour
             Vector3 right = transform.right; right.y = 0; right.Normalize();
             Vector3 forward = transform.forward; forward.y = 0; forward.Normalize();
             target.position -= (right * avgDelta.x + forward * avgDelta.y) * touchPanSpeed;
+        }
+    }
+
+    void OnDestroy()
+    {
+        if (ARToggle != null)
+        {
+            ARToggle.onValueChanged.RemoveListener(ResetCamera);
         }
     }
 }
