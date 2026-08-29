@@ -125,10 +125,14 @@ public class ARManager : MonoBehaviour
     {
         if (!trackerInitialized)
         {
-            float fx = width; 
-            float fy = width;
+            float vFovRad = Camera.main.fieldOfView * Mathf.Deg2Rad;
+            float expectedFocalLength = (height / 2f) / Mathf.Tan(vFovRad / 2f);
+
+            float fx = expectedFocalLength; 
+            float fy = expectedFocalLength;
             float cx = width / 2f;
             float cy = height / 2f;
+            
             InitTracker(fx, fy, cx, cy);
             trackerInitialized = true;
         }

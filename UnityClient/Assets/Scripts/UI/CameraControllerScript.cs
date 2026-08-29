@@ -27,7 +27,7 @@ public class CameraControllerScript : MonoBehaviour
     private float yAngle = 0f;
     private float distance = 1f;
     private float minDistance = 0.5f;
-    private float maxDistance = 5f;
+    private float maxDistance = 10f;
 
     void Start()
     {
