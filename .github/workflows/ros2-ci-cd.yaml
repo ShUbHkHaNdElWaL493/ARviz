@@ -5,9 +5,11 @@ on:
     branches:
       - main
       - dev
-    paths:
-      - 'ROS2/**'
   workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: ./ROS2
 
 jobs:
   build-ros2:

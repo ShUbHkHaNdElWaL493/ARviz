@@ -1,0 +1,23 @@
+name: C++ CI
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: ./NativeCV
+
+jobs:
+  build-cpp:
+    name: Build Android shared library
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Build docker container
+        run: docker build .
