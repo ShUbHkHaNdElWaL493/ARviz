@@ -15,6 +15,7 @@ public class ARManager : MonoBehaviour
 
     [Header("UI Elements")]
     public Toggle ARToggle;
+    public Transform pluginsContainer;
     private RawImage rawImage;
     private WebCamTexture webCamTexture;
     private AspectRatioFitter ratioFitter;
@@ -70,15 +71,27 @@ public class ARManager : MonoBehaviour
         }
     }
 
-    private void SetChildrenActive(bool isActive)
+    private void SetChildrenActive(bool isMarkerVisible)
     {
-        if (robotAnchor == null) return;
+        if (robotAnchor == null || pluginsContainer == null) return;
 
-        foreach (Transform child in robotAnchor)
+        if (!isMarkerVisible)
         {
-            if (child.gameObject.activeSelf != isActive)
+            foreach (Transform child in robotAnchor)
             {
-                child.gameObject.SetActive(isActive);
+                if (child.gameObject.activeSelf) child.gameObject.SetActive(false);
+            }
+            return;
+        }
+
+        Toggle[] allToggles = pluginsContainer.GetComponentsInChildren<Toggle>();
+        foreach (Toggle toggle in allToggles)
+        {
+            string targetName = toggle.gameObject.name.Replace("_Toggle", "");
+            Transform associatedChild = robotAnchor.Find(targetName);
+            if (associatedChild != null && associatedChild.gameObject.activeSelf != toggle.isOn)
+            {
+                associatedChild.gameObject.SetActive(toggle.isOn);
             }
         }
     }
