@@ -12,7 +12,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class RobotModelScript : MonoBehaviour
+public class RobotModelPlugin : MonoBehaviour
 {
 
     [Header("UI Settings")]
@@ -105,8 +105,6 @@ public class RobotModelScript : MonoBehaviour
             ROSConnection.GetOrCreateInstance().Subscribe<JointStateMsg>("/joint_states", JointStatesCallback);
             isSubscribedToJointStates = true;
         }
-        
-        Debug.Log("Listening to ROS topics in the background. Waiting for URDF...");
     }
 
     public void StopVisualization()
@@ -375,5 +373,30 @@ public class RobotModelScript : MonoBehaviour
             }
         }
         return null;
+    }
+    
+    void OnEnable()
+    {
+        TCPConnection.OnROSDisconnectedEvent += HandleROSDisconnect;
+    }
+
+    void OnDisable()
+    {
+        TCPConnection.OnROSDisconnectedEvent -= HandleROSDisconnect;
+    }
+
+    private void HandleROSDisconnect()
+    {
+        isVisible = false;
+
+        if (visualizationToggle != null) 
+        {
+            visualizationToggle.SetIsOnWithoutNotify(false); 
+        }
+
+        if (!string.IsNullOrEmpty(subscribedUrdfTopic))
+        {
+            ClearExistingModel(subscribedUrdfTopic);
+        }
     }
 }

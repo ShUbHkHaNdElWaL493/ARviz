@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.Android;
 using UnityEngine.UI;
+using TMPro;
 
 [RequireComponent(typeof(RawImage))]
 public class ARManager : MonoBehaviour
@@ -15,6 +16,7 @@ public class ARManager : MonoBehaviour
 
     [Header("UI Elements")]
     public Toggle ARToggle;
+    public TMP_InputField markerSizeInput;
     public Transform pluginsContainer;
     private RawImage rawImage;
     private WebCamTexture webCamTexture;
@@ -22,7 +24,7 @@ public class ARManager : MonoBehaviour
 
     [Header("Tracking Settings")]
     public Transform robotAnchor;
-    public float markerSize;
+    public float markerSize = 0.05f; 
 
     private Vector3 basePosition;
     private Quaternion baseRotation;
@@ -43,6 +45,12 @@ public class ARManager : MonoBehaviour
         {
             basePosition = robotAnchor.localPosition;
             baseRotation = robotAnchor.localRotation;
+        }
+
+        if (markerSizeInput != null)
+        {
+            markerSizeInput.text = (markerSize * 1000f).ToString();
+            markerSizeInput.onValueChanged.AddListener(OnMarkerSizeChanged);
         }
 
         rawImage = GetComponent<RawImage>();
@@ -68,6 +76,17 @@ public class ARManager : MonoBehaviour
         {
             ARToggle.onValueChanged.AddListener(ToggleCameraFeed);
             ToggleCameraFeed(ARToggle.isOn); 
+        }
+    }
+
+    private void OnMarkerSizeChanged(string newValue)
+    {
+        if (float.TryParse(newValue, out float parsedSizeMm))
+        {
+            if (parsedSizeMm >= 1f)
+            {
+                markerSize = parsedSizeMm / 1000f;
+            }
         }
     }
 
@@ -190,6 +209,11 @@ public class ARManager : MonoBehaviour
         if (ARToggle != null)
         {
             ARToggle.onValueChanged.RemoveListener(ToggleCameraFeed);
+        }
+
+        if (markerSizeInput != null)
+        {
+            markerSizeInput.onValueChanged.RemoveListener(OnMarkerSizeChanged);
         }
         
         if (webCamTexture != null)

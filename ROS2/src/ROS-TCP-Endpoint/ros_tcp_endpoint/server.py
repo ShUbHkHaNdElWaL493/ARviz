@@ -218,6 +218,17 @@ class SysCommands:
             self.tcp_server.executor.add_node(new_subscriber)
 
         self.tcp_server.loginfo("RegisterSubscriber({}, {}) OK".format(topic, message_class))
+    
+    def remove_subscriber(self, topic):
+        """
+        Removes a subscriber for a specific topic when requested by Unity.
+        """
+        if not topic:
+            return
+
+        old_node = self.tcp_server.subscribers_table.get(topic)
+        if old_node is not None:
+            self.tcp_server.unregister_node(old_node)
 
     def publish(self, topic, message_name, queue_size=10, latch=False):
         if topic == "":
