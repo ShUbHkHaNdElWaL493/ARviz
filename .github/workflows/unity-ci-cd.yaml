@@ -9,7 +9,6 @@ on:
 
 jobs:
   build-unity:
-    name: Build ${{ matrix.targetPlatform }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false

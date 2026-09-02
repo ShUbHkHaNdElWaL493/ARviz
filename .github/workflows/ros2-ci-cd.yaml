@@ -13,7 +13,6 @@ defaults:
 
 jobs:
   build-ros2:
-    name: Build ROS2 workspace
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout code
