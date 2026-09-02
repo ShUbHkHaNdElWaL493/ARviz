@@ -87,7 +87,8 @@ private:
 
     try {
       std::string package_share_dir = ament_index_cpp::get_package_share_directory(package_name);
-      std::filesystem::path absolute_path = std::filesystem::weakly_canonical(std::filesystem::path(package_share_dir) / file_path);
+      std::filesystem::path absolute_path =
+        std::filesystem::weakly_canonical(std::filesystem::path(package_share_dir) / file_path);
       std::filesystem::path base_path = std::filesystem::weakly_canonical(package_share_dir);
 
       if (absolute_path.string().find(base_path.string()) != 0) {
@@ -130,15 +131,15 @@ public:
   ARvizDesktopServer()
   :Node("desktop_server"),
     allowed_extensions({
-      ".dae", ".DAE",
-      ".stl", ".STL",
-      ".obj", ".OBJ",
-      ".glb", ".GLB",
-      ".gltf", ".GLTF",
-      ".png", ".PNG",
-      ".jpg", ".JPG",
-      ".jpeg", ".JPEG"
-    })
+    ".dae", ".DAE",
+    ".stl", ".STL",
+    ".obj", ".OBJ",
+    ".glb", ".GLB",
+    ".gltf", ".GLTF",
+    ".png", ".PNG",
+    ".jpg", ".JPG",
+    ".jpeg", ".JPEG"
+  })
   {
     int port = 8000;
     std::string local_ip = get_local_ip();
