@@ -15,6 +15,7 @@ Thumbs.db
 /UnityClient/[Ll]ogs/
 /UnityClient/[Mm]emoryCaptures/
 /UnityClient/[Uu]serSettings/
+/UnityClient/[Ee]xecutables/
 
 *.csproj
 *.unityproj

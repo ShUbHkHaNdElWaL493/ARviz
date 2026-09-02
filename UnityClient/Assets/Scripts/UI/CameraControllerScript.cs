@@ -15,8 +15,8 @@ public class CameraControllerScript : MonoBehaviour
 
     [Header("Touch Speeds")]
     public float touchOrbitSpeed = 0.25f;
-    public float touchPanSpeed = 0.05f;
-    public float touchZoomSpeed = 0.1f;
+    public float touchPanSpeed = 0.01f;
+    public float touchZoomSpeed = 0.01f;
 
     private float startXAngle;
     private float startYAngle;
@@ -158,11 +158,6 @@ public class CameraControllerScript : MonoBehaviour
 
             distance += pinchDelta * touchZoomSpeed * distance;
             distance = Mathf.Clamp(distance, minDistance, maxDistance);
-
-            Vector2 avgDelta = (t0Delta + t1Delta) / 2f;
-            Vector3 right = transform.right; right.y = 0; right.Normalize();
-            Vector3 forward = transform.forward; forward.y = 0; forward.Normalize();
-            target.position -= (right * avgDelta.x + forward * avgDelta.y) * touchPanSpeed;
         }
     }
 
