@@ -64,14 +64,6 @@ private:
 
   void serve_stl(const std::string & filepath, httplib::Response & res)
   {
-    std::ifstream file(filepath, std::ios::binary);
-    if (!file.is_open()) {
-      res.status = 500;
-      res.set_content("Internal Server Error", "text/plain");
-      return;
-    }
-    std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-
     std::string mime_type = "application/octet-stream";
     if (filepath.find(".stl") != std::string::npos) {
       mime_type = "model/stl";
@@ -85,7 +77,7 @@ private:
       (filepath.find(".jpg") != std::string::npos) ||
       (filepath.find(".jpeg") != std::string::npos)) {mime_type = "image/jpeg";}
 
-    res.set_content(content, mime_type);
+    res.set_file_content(filepath, mime_type);
   }
 
   void handle_request(const httplib::Request & req, httplib::Response & res)
@@ -95,7 +87,15 @@ private:
 
     try {
       std::string package_share_dir = ament_index_cpp::get_package_share_directory(package_name);
-      std::filesystem::path absolute_path = std::filesystem::path(package_share_dir) / file_path;
+      std::filesystem::path absolute_path = std::filesystem::weakly_canonical(std::filesystem::path(package_share_dir) / file_path);
+      std::filesystem::path base_path = std::filesystem::weakly_canonical(package_share_dir);
+
+      if (absolute_path.string().find(base_path.string()) != 0) {
+        RCLCPP_ERROR(this->get_logger(), "Forbidden path traversal attempt.");
+        res.status = 403;
+        res.set_content("Forbidden Path Traversal", "text/plain");
+        return;
+      }
 
       if (!std::filesystem::exists(absolute_path)) {
         RCLCPP_ERROR(this->get_logger(), "File not found: %s", absolute_path.c_str());
@@ -105,6 +105,7 @@ private:
       }
 
       if (allowed_extensions.find(absolute_path.extension().string()) == allowed_extensions.end()) {
+        RCLCPP_ERROR(this->get_logger(), "Forbidden File Type Request: %s", absolute_path.c_str());
         res.status = 403;
         res.set_content("Forbidden File Type", "text/plain");
         return;
@@ -128,7 +129,16 @@ private:
 public:
   ARvizDesktopServer()
   :Node("desktop_server"),
-    allowed_extensions({".dae", ".stl", ".obj", ".glb", ".gltf", ".png", ".jpg", ".jpeg"})
+    allowed_extensions({
+      ".dae", ".DAE",
+      ".stl", ".STL",
+      ".obj", ".OBJ",
+      ".glb", ".GLB",
+      ".gltf", ".GLTF",
+      ".png", ".PNG",
+      ".jpg", ".JPG",
+      ".jpeg", ".JPEG"
+    })
   {
     int port = 8000;
     std::string local_ip = get_local_ip();

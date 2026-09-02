@@ -3,15 +3,19 @@
 
 #if defined(__ANDROID__)
     #include <android/log.h>
-    #include <opencv2/calib3d.hpp>
-    #include <opencv2/objdetect.hpp>
     #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, "NativeCV", __VA_ARGS__)
     #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, "NativeCV", __VA_ARGS__)
 #else
     #include <iostream>
-    #include <opencv2/aruco.hpp>
     #define LOGI(...) printf(__VA_ARGS__); printf("\n")
     #define LOGE(...) printf(__VA_ARGS__); printf("\n")
+#endif
+
+#if (CV_VERSION_MAJOR > 4) || (CV_VERSION_MAJOR == 4 && CV_VERSION_MINOR >= 7)
+    #include <opencv2/calib3d.hpp>
+    #include <opencv2/objdetect.hpp>
+#else
+    #include <opencv2/aruco.hpp>
 #endif
 
 namespace
@@ -19,7 +23,7 @@ namespace
     cv::Mat cameraMatrix;
     cv::Mat distCoeffs;
 
-    #if defined(__ANDROID__)
+    #if (CV_VERSION_MAJOR > 4) || (CV_VERSION_MAJOR == 4 && CV_VERSION_MINOR >= 7)
         cv::Ptr<cv::aruco::ArucoDetector> arucoDetector;
     #else
         cv::Ptr<cv::aruco::Dictionary> dictionary;
@@ -38,7 +42,7 @@ extern "C"
         );
         distCoeffs = cv::Mat::zeros(1, 5, CV_64F); 
 
-        #if defined(__ANDROID__)
+        #if (CV_VERSION_MAJOR > 4) || (CV_VERSION_MAJOR == 4 && CV_VERSION_MINOR >= 7)
             cv::aruco::Dictionary dict = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_6X6_250);
             cv::aruco::DetectorParameters params = cv::aruco::DetectorParameters();
             arucoDetector = cv::makePtr<cv::aruco::ArucoDetector>(dict, params);
@@ -69,7 +73,7 @@ extern "C"
         std::vector<int> markerIds;
         std::vector<std::vector<cv::Point2f>> markerCorners, rejectedCandidates;
 
-        #if defined(__ANDROID__)
+        #if (CV_VERSION_MAJOR > 4) || (CV_VERSION_MAJOR == 4 && CV_VERSION_MINOR >= 7)
             if (arucoDetector.empty()) return false;
             arucoDetector->detectMarkers(gray, markerCorners, markerIds, rejectedCandidates);
         #else
