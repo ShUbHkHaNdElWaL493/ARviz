@@ -1,0 +1,151 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-ros2:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup ROS 2 Jazzy
+        uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: jazzy
+
+      - name: Install dependencies using rosdep
+        working-directory: ROS2
+        run: |
+          rosdep update
+          rosdep install --from-paths src --ignore-src -y --rosdistro jazzy
+
+      - name: Build and test
+        working-directory: ROS2
+        shell: bash
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          colcon build
+          source install/setup.bash
+          colcon test
+          colcon test-result --all
+
+  build-unity:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        targetPlatform:
+          - Android
+          - StandaloneLinux64
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          lfs: true
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and extract shared libraries
+        run: |
+          docker buildx build \
+          --output type=local,dest=UnityClient/Assets/Plugins \
+          NativeCV/
+          sudo chown -R $USER:$USER UnityClient/Assets/Plugins
+
+      - name: Cache Unity library
+        uses: actions/cache@v4
+        with:
+          path: UnityClient/Library
+          key: Library-${{ matrix.targetPlatform }}-${{ hashFiles('UnityClient/Assets/**', 'UnityClient/Packages/**') }}
+          restore-keys: |
+            Library-${{ matrix.targetPlatform }}-
+
+      - name: Build project
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          projectPath: UnityClient
+          targetPlatform: ${{ matrix.targetPlatform }}
+          buildsPath: UnityClient/build
+
+      - name: Package Linux variant as AppImage
+        if: matrix.targetPlatform == 'StandaloneLinux64'
+        run: |
+          wget -qO appimagetool "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
+          chmod +x appimagetool
+          sudo chown -R $USER:$USER UnityClient/build/
+
+          cat << 'EOF' > UnityClient/build/StandaloneLinux64/arviz.desktop
+          [Desktop Entry]
+          Type=Application
+          Name=ARviz
+          Exec=ARviz.x86_64
+          Icon=icon
+          Categories=Development;
+          EOF
+
+          chmod +x UnityClient/build/StandaloneLinux64/ARviz.x86_64
+          cp UnityClient/Assets/Textures/icon.png UnityClient/build/StandaloneLinux64
+          ./appimagetool --appimage-extract-and-run UnityClient/build/StandaloneLinux64 UnityClient/build/ARviz.x86_64.AppImage
+
+      - name: Upload Unity build artifacts
+        if: startsWith(github.ref, 'refs/heads/main') || startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-artifact@v4
+        with:
+          name: ARviz-${{ matrix.targetPlatform }}
+          path: |
+            ${{ matrix.targetPlatform == 'StandaloneLinux64' && 'UnityClient/build/ARviz.x86_64.AppImage' || format('UnityClient/build/{0}', matrix.targetPlatform) }}
+
+  publish-release:
+    needs:
+      - build-ros2
+      - build-unity
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ARviz-StandaloneLinux64
+          path: release-artifacts/linux
+
+      - name: Download Android artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ARviz-Android
+          path: release-artifacts/android
+
+      - name: Zip ROS2 workspace
+        run: |
+          zip -r arviz_ros2_ws.zip ROS2
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ARviz ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            release-artifacts/linux/ARviz.x86_64.AppImage
+            release-artifacts/android/*.apk
+            arviz_ros2_ws.zip
