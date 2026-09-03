@@ -1,0 +1,36 @@
+name: ROS2 CI
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  workflow_dispatch:
+
+jobs:
+  build-ros2:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup ROS 2 Jazzy
+        uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: jazzy
+
+      - name: Install dependencies using rosdep
+        working-directory: ROS2
+        run: |
+          rosdep update
+          rosdep install --from-paths src --ignore-src -y --rosdistro jazzy
+
+      - name: Build and test
+        working-directory: ROS2
+        shell: bash
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          colcon build
+          source install/setup.bash
+          colcon test
+          colcon test-result --all
