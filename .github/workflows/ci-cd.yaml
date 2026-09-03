@@ -87,6 +87,18 @@ jobs:
       - name: Show files
         run: ls -R UnityClient/build
 
+      - name: Set build output permissions
+        run: |
+          sudo chown -R $USER:$USER UnityClient/build
+
+      - name: Flatten Android build structure
+        if: matrix.targetPlatform == 'Android'
+        run: |
+          if [ -d "UnityClient/build/Android/Android.apk" ]; then
+            mv UnityClient/build/Android/Android.apk/*.apk UnityClient/build/Android/
+            rm -rf UnityClient/build/Android/Android.apk
+          fi
+
       - name: Package Linux variant as AppImage
         if: matrix.targetPlatform == 'StandaloneLinux64'
         run: |
