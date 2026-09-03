@@ -84,9 +84,6 @@ jobs:
           buildsPath: UnityClient/build
           buildName: ARviz
 
-      - name: Show files
-        run: ls -R UnityClient/build
-
       - name: Set build output permissions
         run: |
           sudo chown -R $USER:$USER UnityClient/build
@@ -113,7 +110,6 @@ jobs:
           Icon=icon
           Categories=Development;
           EOF
-          mv UnityClient/build/StandaloneLinux64/ARviz UnityClient/build/StandaloneLinux64/ARviz.x86_64
 
           chmod +x UnityClient/build/StandaloneLinux64/ARviz.x86_64
           cp UnityClient/Assets/Textures/icon.png UnityClient/build/StandaloneLinux64
