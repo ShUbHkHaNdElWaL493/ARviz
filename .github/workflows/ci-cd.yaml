@@ -84,6 +84,10 @@ jobs:
           buildsPath: UnityClient/build
           buildName: ARviz
 
+      - name: Show files
+        if: matrix.targetPlatform == 'StandaloneLinux64'
+        run: ls -R UnityClient/build
+
       - name: Package Linux variant as AppImage
         if: matrix.targetPlatform == 'StandaloneLinux64'
         run: |
