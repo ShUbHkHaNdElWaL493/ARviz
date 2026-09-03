@@ -84,23 +84,12 @@ jobs:
           buildsPath: UnityClient/build
           buildName: ARviz
 
-      - name: Set build output permissions
-        run: |
-          sudo chown -R $USER:$USER UnityClient/build
-
-      - name: Flatten Android build structure
-        if: matrix.targetPlatform == 'Android'
-        run: |
-          if [ -d "UnityClient/build/Android/Android.apk" ]; then
-            mv UnityClient/build/Android/Android.apk/*.apk UnityClient/build/Android/
-            rm -rf UnityClient/build/Android/Android.apk
-          fi
-
       - name: Package Linux variant as AppImage
         if: matrix.targetPlatform == 'StandaloneLinux64'
         run: |
           wget -qO appimagetool "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
           chmod +x appimagetool
+          sudo chown -R $USER:$USER UnityClient/build
 
           cat << 'EOF' > UnityClient/build/StandaloneLinux64/arviz.desktop
           [Desktop Entry]
@@ -113,7 +102,7 @@ jobs:
 
           chmod +x UnityClient/build/StandaloneLinux64/ARviz.x86_64
           cp UnityClient/Assets/Textures/icon.png UnityClient/build/StandaloneLinux64
-          ./appimagetool --appimage-extract-and-run UnityClient/build/StandaloneLinux64 UnityClient/build/ARviz.x86_64.AppImage
+          ./appimagetool --appimage-extract-and-run UnityClient/build/StandaloneLinux64 UnityClient/build/ARviz.AppImage
 
       - name: Upload Unity build artifacts
         if: startsWith(github.ref, 'refs/heads/main') || startsWith(github.ref, 'refs/tags/')
@@ -121,7 +110,7 @@ jobs:
         with:
           name: ARviz-${{ matrix.targetPlatform }}
           path: |
-            ${{ matrix.targetPlatform == 'StandaloneLinux64' && 'UnityClient/build/ARviz.x86_64.AppImage' || format('UnityClient/build/{0}', matrix.targetPlatform) }}
+            ${{ matrix.targetPlatform == 'StandaloneLinux64' && 'UnityClient/build/ARviz.AppImage' || format('UnityClient/build/{0}', matrix.targetPlatform) }}
 
   publish-release:
     needs:
@@ -158,6 +147,6 @@ jobs:
           prerelease: false
           generate_release_notes: true
           files: |
-            release-artifacts/linux/ARviz.x86_64.AppImage
-            release-artifacts/android/*.apk
+            release-artifacts/linux/ARviz.AppImage
+            release-artifacts/android/ARviz.apk
             arviz_ros2_ws.zip
