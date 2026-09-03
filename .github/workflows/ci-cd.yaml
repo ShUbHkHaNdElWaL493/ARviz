@@ -82,6 +82,7 @@ jobs:
           projectPath: UnityClient
           targetPlatform: ${{ matrix.targetPlatform }}
           buildsPath: UnityClient/build
+          buildName: ARviz
 
       - name: Package Linux variant as AppImage
         if: matrix.targetPlatform == 'StandaloneLinux64'
