@@ -91,7 +91,7 @@ jobs:
           chmod +x appimagetool
           sudo chown -R $USER:$USER UnityClient/build
 
-          cat << 'EOF' > UnityClient/build/StandaloneLinux64/arviz.desktop
+          cat << 'EOF' > UnityClient/build/StandaloneLinux64/ARviz.desktop
           [Desktop Entry]
           Type=Application
           Name=ARviz
@@ -100,7 +100,14 @@ jobs:
           Categories=Development;
           EOF
 
-          chmod +x UnityClient/build/StandaloneLinux64/ARviz.x86_64
+          cat << 'EOF' > UnityClient/build/StandaloneLinux64/AppRun
+          #!/bin/sh
+          HERE="$(dirname "$(readlink -f "${0}")")"
+          export LD_LIBRARY_PATH="${HERE}:${LD_LIBRARY_PATH}"
+          exec "${HERE}/ARviz.x86_64" "$@"
+          EOF
+
+          chmod +x UnityClient/build/StandaloneLinux64/AppRun UnityClient/build/StandaloneLinux64/ARviz.x86_64
           cp UnityClient/Assets/Textures/icon.png UnityClient/build/StandaloneLinux64
           ./appimagetool --appimage-extract-and-run UnityClient/build/StandaloneLinux64 UnityClient/build/ARviz.AppImage
 
@@ -147,6 +154,7 @@ jobs:
           prerelease: false
           generate_release_notes: true
           files: |
+            Public/aruco_marker.png
             release-artifacts/linux/ARviz.AppImage
             release-artifacts/android/ARviz.apk
             arviz_ros2_ws.zip
