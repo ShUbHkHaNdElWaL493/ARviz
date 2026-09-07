@@ -1,4 +1,4 @@
-# ARviz
+# <img src="./Public/icon.png" alt="ARviz Logo" width="30" height="30"> ARviz
 
 This project aims to visualize robots through Aruco markers using augmented reality.
 
@@ -69,6 +69,12 @@ This project aims to visualize robots through Aruco markers using augmented real
 ## ARviz Usage
 
 1. Download the `aruco_marker.png` file from the latest release and either print it or present it on a screen.
+    <div align="center">
+        <figure>
+        <img src="./Public/aruco_marker.png" alt="ArUco Marker" width="200">
+        <figcaption><em>ArUco Marker</em></figcaption>
+        </figure>
+    </div>
 2. Enter the IP address and Port of the server in the right drawer under `Connection Settings` of the client. The default port for the tcp server is `10000`. Click `Connect`.
 3. Enter the ArUco marker size in the text box under AR settings. Default value for the marker size is `50`. You can also use it to scale the robot.
 4. Once the connection is established, enter the `robot_description` topic name in the left drawer of the client under `RobotModel` and toggle `Visualize`.
@@ -79,4 +85,4 @@ This project aims to visualize robots through Aruco markers using augmented real
 ---
 
 ## Contributions
-If you want to contribute to this project, feel free to contact me.
+If you want to contribute to this project, please contact me through one of the contact methods listed under my account.
