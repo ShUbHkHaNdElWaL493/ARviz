@@ -72,7 +72,6 @@ This project aims to visualize robots through Aruco markers using augmented real
     <div align="center">
         <figure>
         <img src="./Public/aruco_marker.png" alt="ArUco Marker" width="200">
-        <figcaption><em>ArUco Marker</em></figcaption>
         </figure>
     </div>
 2. Enter the IP address and Port of the server in the right drawer under `Connection Settings` of the client. The default port for the tcp server is `10000`. Click `Connect`.
