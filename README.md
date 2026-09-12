@@ -11,11 +11,11 @@ This project aims to visualize robots through Aruco markers using augmented real
 
 <div style="text-align: center;">
     <figure style="display: inline-block; vertical-align: top; margin-right: 20px;">
-        <img src="./Public/arviz_ar.png" alt="AR View" width="400">
+        <img src="./Public/arviz_ar.png" alt="AR View" width="300">
         <figcaption><em>AR View</em></figcaption>
     </figure>
     <figure style="display: inline-block; vertical-align: top;">
-        <img src="./Public/arviz_grid.png" alt="Grid View" width="400">
+        <img src="./Public/arviz_grid.png" alt="Grid View" width="300">
         <figcaption><em>Grid View</em></figcaption>
     </figure>
 </div>
