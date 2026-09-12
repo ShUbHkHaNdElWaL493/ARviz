@@ -2,6 +2,24 @@
 
 This project aims to visualize robots through Aruco markers using augmented reality.
 
+<div align="center">
+    <figure>
+    <img src="./Public/arviz.gif" alt="ArUco Marker" width="1000">
+    <figcaption><em>App View</em></figcaption>
+    </figure>
+</div>
+
+<div style="text-align: center;">
+    <figure style="display: inline-block; vertical-align: top; margin-right: 20px;">
+        <img src="./Public/arviz_ar.png" alt="AR View" width="400">
+        <figcaption><em>AR View</em></figcaption>
+    </figure>
+    <figure style="display: inline-block; vertical-align: top;">
+        <img src="./Public/arviz_grid.png" alt="Grid View" width="400">
+        <figcaption><em>Grid View</em></figcaption>
+    </figure>
+</div>
+
 ---
 
 ## Prerequisites
